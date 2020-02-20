@@ -1,0 +1,39 @@
+{
+  "name": "koa-api",
+  "version": "0.0.1",
+  "description": "A REST API using koa js",
+  "main": "index.js",
+  "scripts": {
+    "dev": "NODE_ENV=development nodemon .",
+    "test": "NODE_ENV=test jest --notify --watchAll --detectOpenHandles"
+  },
+  "keywords": [
+    "koa",
+    "rest",
+    "api",
+    "nodejs"
+  ],
+  "author": {
+    "name": "Ferdinand Saporas Bergado",
+    "email": "ferdiebergado@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "3.0.8",
+    "jsonwebtoken": "8.5.1",
+    "koa": "2.11.0",
+    "koa-body": "4.1.1",
+    "koa-router": "8.0.8",
+    "pg": "7.18.1"
+  },
+  "devDependencies": {
+    "jest": "25.1.0",
+    "nodemon": "2.0.2",
+    "supertest": "4.0.2"
+  },
+  "engines": {
+    "node": ">=12.16.0",
+    "npm": ">=6.13.4",
+    "yarn": ">=1.22.0"
+  }
+}
