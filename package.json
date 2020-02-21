@@ -4,7 +4,8 @@
   "description": "A REST API using koa js",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon .",
+    "dev": "DEBUG=koa* NODE_ENV=development nodemon .",
+    "start": "NODE_ENV=production node .",
     "test": "NODE_ENV=test jest --notify --watchAll --detectOpenHandles"
   },
   "keywords": [
@@ -23,12 +24,22 @@
     "jsonwebtoken": "8.5.1",
     "koa": "2.11.0",
     "koa-body": "4.1.1",
+    "koa-logger": "3.2.1",
     "koa-router": "8.0.8",
     "pg": "7.18.1"
   },
   "devDependencies": {
+    "eslint": "6.8.0",
+    "eslint-config-airbnb-base": "14.0.0",
+    "eslint-config-prettier": "6.10.0",
+    "eslint-plugin-import": "2.20.1",
+    "eslint-plugin-jest": "23.7.0",
+    "eslint-plugin-node": "11.0.0",
+    "eslint-plugin-prettier": "3.1.2",
+    "eslint-plugin-security": "1.4.0",
     "jest": "25.1.0",
     "nodemon": "2.0.2",
+    "prettier": "1.19.1",
     "supertest": "4.0.2"
   },
   "engines": {
