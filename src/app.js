@@ -3,9 +3,12 @@ const router = require('koa-router')();
 const logger = require('koa-logger');
 const { ValidationError } = require('@hapi/joi');
 const authRoute = require('./auth/routes');
+const userRoute = require('./users/routes');
 
 const app = new Koa();
-app.keys = [process.env.APP_KEY];
+const { APP_KEY } = process.env;
+
+app.keys = [APP_KEY];
 
 app.use(async (ctx, next) => {
   try {
@@ -47,8 +50,9 @@ router.get('/error', (_ctx, _next) => {
 
 app.use(router.routes());
 app.use(router.allowedMethods());
-
 app.use(authRoute.routes());
 app.use(authRoute.allowedMethods());
+app.use(userRoute.routes());
+app.use(userRoute.allowedMethods());
 
 module.exports = app;

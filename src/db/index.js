@@ -4,23 +4,31 @@ const { Pool } = require('pg');
 
 const pool = new Pool();
 
+const { NODE_ENV } = process.env;
+const DEV = NODE_ENV === 'development';
+
 module.exports = {
   query: async query => {
     try {
-      const start = Date.now();
-      const res = await pool.query(query);
-      const duration = Date.now() - start;
-      const { text, values } = query;
-      let numrows = 0;
-      if (res !== null && typeof res !== 'undefined') {
-        numrows = res.rowCount;
+      let res;
+      if (DEV) {
+        const start = Date.now();
+        res = await pool.query(query);
+        const duration = Date.now() - start;
+        const { text, values } = query;
+        let numrows = 0;
+        if (res !== null && typeof res !== 'undefined') {
+          numrows = res.rowCount;
+        }
+        console.log('executed query', {
+          text,
+          values,
+          duration,
+          rows: numrows
+        });
+      } else {
+        res = await pool.query(query);
       }
-      console.log('executed query', {
-        text,
-        values,
-        duration,
-        rows: numrows
-      });
       return res;
     } catch (error) {
       throw error;
@@ -50,5 +58,9 @@ module.exports = {
       };
       callback(err, client, release);
     });
+  },
+
+  getClient2: async () => {
+    return pool.connect();
   }
 };

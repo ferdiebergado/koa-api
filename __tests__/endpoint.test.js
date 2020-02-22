@@ -25,8 +25,6 @@ describe('Auth Component Tests', () => {
         .set('Content-Type', 'application/json')
         .expect('Content-Type', 'application/json; charset=utf-8');
 
-      console.log(response.body);
-
       expect(response.body.access_token).not.toBeUndefined();
     });
     test('should fail when email is blank', async () => {
@@ -37,7 +35,6 @@ describe('Auth Component Tests', () => {
         .set('Content-Type', 'application/json')
         .expect('Content-Type', 'application/json; charset=utf-8');
 
-      console.log(response.body);
       expect(response.status).toEqual(422);
       expect(response.body.error).toMatch('"email" is required');
     });
@@ -50,7 +47,6 @@ describe('Auth Component Tests', () => {
         .set('Content-Type', 'application/json')
         .expect('Content-Type', 'application/json; charset=utf-8');
 
-      console.log(response.body);
       expect(response.status).toEqual(422);
       expect(response.body.error).toMatch('"email" must be a valid email');
     });
@@ -63,7 +59,6 @@ describe('Auth Component Tests', () => {
         .set('Content-Type', 'application/json')
         .expect('Content-Type', 'application/json; charset=utf-8');
 
-      console.log(response.body);
       expect(response.status).toEqual(422);
       expect(response.body.error).toMatch(
         '"email" length must be less than or equal to 150 characters long'
@@ -77,7 +72,6 @@ describe('Auth Component Tests', () => {
         .set('Content-Type', 'application/json')
         .expect('Content-Type', 'application/json; charset=utf-8');
 
-      console.log(response.body);
       expect(response.status).toEqual(422);
       expect(response.body.error).toMatch('"password" is required');
     });
@@ -90,7 +84,6 @@ describe('Auth Component Tests', () => {
         .set('Content-Type', 'application/json')
         .expect('Content-Type', 'application/json; charset=utf-8');
 
-      console.log(response.body);
       expect(response.status).toEqual(422);
       expect(response.body.error).toMatch('"password" length must be at least 8 characters long');
     });
@@ -103,11 +96,38 @@ describe('Auth Component Tests', () => {
         .set('Content-Type', 'application/json')
         .expect('Content-Type', 'application/json; charset=utf-8');
 
-      console.log(response.body);
       expect(response.status).toEqual(422);
       expect(response.body.error).toMatch(
         '"password" length must be less than or equal to 150 characters long'
       );
+    });
+  });
+});
+
+describe('Users Component Tests', () => {
+  describe('Show User Endpoint Tests', () => {
+    test('should return a user when param is valid', async () => {
+      const response = await request(app)
+        .get('/users/7')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      console.log(response.body);
+      expect(response.status).toEqual(200);
+      expect(response.body.data).toMatchObject({
+        id: 7,
+        name: 'abc',
+        email: 'abc@123.com',
+        role: 3,
+        created_at: '2020-02-08T05:31:20.775Z'
+      });
+    });
+    test('should fail when param is invalid', async () => {
+      const response = await request(app)
+        .get('/users/a')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(response.status).toEqual(422);
+      expect(response.body.error).toMatch('"user" must be a number');
     });
   });
 });
