@@ -1,6 +1,7 @@
 const Koa = require('koa');
 const router = require('koa-router')();
 const logger = require('koa-logger');
+const { ValidationError } = require('@hapi/joi');
 const authRoute = require('./auth/routes');
 
 const app = new Koa();
@@ -12,6 +13,7 @@ app.use(async (ctx, next) => {
   } catch (err) {
     // will only respond with JSON
     ctx.status = err.statusCode || err.status || 500;
+    if (err instanceof ValidationError) ctx.status = 422;
     ctx.body = {
       error: err.message
     };

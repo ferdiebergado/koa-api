@@ -9,7 +9,7 @@ module.exports = {
       // Check if a user with the specified email exists in the database
       const findUserByEmail = {
         text:
-          'SELECT id, name, email, role, password FROM users WHERE is_active = TRUE AND deleted_at IS NULL AND email = $1',
+          'SELECT id, name, email, role, password FROM users WHERE email = $1 AND is_active = TRUE AND deleted_at IS NULL',
         values: [email]
       };
       const users = await db.query(findUserByEmail);
@@ -22,10 +22,10 @@ module.exports = {
       const user = users.rows[0];
       const match = await bcrypt.compare(password, user.password);
 
-      //   Password did not match, throw custom error
+      // Passwords did not match, throw custom error
       if (!match) throw new Error(notFound);
 
-      //   Password match, issue an access token with corresponding cookie
+      // Passwords match, issue an access token with corresponding cookie
       delete user.password;
       const token = jwt.sign(user, process.env.APP_KEY, { expiresIn: 1800 });
       const jwtStr = token.split('.');
