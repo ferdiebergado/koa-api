@@ -25,10 +25,14 @@ module.exports = {
       // Passwords did not match, throw custom error
       if (!match) throw new Error(notFound);
 
-      // Passwords match, issue an access token with corresponding cookie
+      // Passwords match, create a jwt
       delete user.password;
       const token = jwt.sign(user, process.env.APP_KEY, { expiresIn: 1800 });
+
+      // Split the jwt (for csrf protection)
       const jwtStr = token.split('.');
+
+      // Return the split jwt
       return {
         payload: `${jwtStr[0]}.${jwtStr[1]}`,
         signature: jwtStr[2]
@@ -40,16 +44,22 @@ module.exports = {
   },
   register: async data => {
     try {
+      // Get the creds from the function parameter
       const { name, email, password } = data;
+
+      // Hash the password
       const hash = await bcrypt.hash(password, 10);
+
+      // Insert the new user into the database
       const createUser = {
         text:
           'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at',
         values: [name, email, hash]
       };
       const res = await db.query(createUser);
-      const user = res.rows[0];
 
+      // Return the new user
+      const user = res.rows[0];
       return {
         id: user.id,
         name,
@@ -58,6 +68,7 @@ module.exports = {
         updated_at: user.updated_at
       };
     } catch (error) {
+      // Bubble up the error to the global error handler
       throw error;
     }
   }

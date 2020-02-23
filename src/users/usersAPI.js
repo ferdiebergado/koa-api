@@ -1,9 +1,9 @@
-const Router = require('koa-router');
+const router = require('koa-router')();
 const usersController = require('./usersController');
-
-const router = new Router();
+const { showSchema } = require('./usersSchema');
+const { validate } = require('../middlewares/validationMiddleware');
 
 router.prefix('/users');
-router.get('/:user', usersController.show);
+router.get('/:user', validate(showSchema), usersController.show);
 
 module.exports = router;
