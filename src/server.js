@@ -6,8 +6,11 @@ const port = PORT || 3000;
 const host = HOST || 'localhost';
 
 const server = http.createServer(app.callback()).listen(port, host, err => {
-  if (err) return console.error(err);
-  console.log(`Listening on ${PROTO}://${host}:${port}`);
+  if (err) {
+    console.error(err);
+  } else {
+    console.log(`Listening on ${PROTO}://${host}:${port}`);
+  }
 });
 
 module.exports = server;
