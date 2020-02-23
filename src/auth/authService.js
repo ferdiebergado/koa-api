@@ -37,5 +37,28 @@ module.exports = {
       // Bubble up the error to the global error handler
       throw error;
     }
+  },
+  register: async data => {
+    try {
+      const { name, email, password } = data;
+      const hash = await bcrypt.hash(password, 10);
+      const createUser = {
+        text:
+          'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at',
+        values: [name, email, hash]
+      };
+      const res = await db.query(createUser);
+      const user = res.rows[0];
+
+      return {
+        id: user.id,
+        name,
+        email,
+        created_at: user.created_at,
+        updated_at: user.updated_at
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 };

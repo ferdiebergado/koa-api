@@ -2,11 +2,13 @@ const Koa = require('koa');
 const router = require('koa-router')();
 const logger = require('koa-logger');
 const { ValidationError } = require('@hapi/joi');
-const authRoute = require('./auth/routes');
-const userRoute = require('./users/routes');
+const authRoute = require('./auth/authAPI');
+const userRoute = require('./users/usersAPI');
 
 const app = new Koa();
-const { APP_KEY } = process.env;
+const { NODE_ENV, APP_KEY } = process.env;
+
+const DEV = NODE_ENV !== 'production';
 
 app.keys = [APP_KEY];
 
@@ -16,10 +18,22 @@ app.use(async (ctx, next) => {
   } catch (err) {
     // will only respond with JSON
     ctx.status = err.statusCode || err.status || 500;
-    if (err instanceof ValidationError) ctx.status = 422;
-    ctx.body = {
-      error: err.message
-    };
+    if (err instanceof ValidationError) {
+      ctx.status = 422;
+      if (DEV) {
+        err.details.forEach(e => {
+          delete e.type;
+          delete e.context;
+        });
+      }
+      ctx.body = {
+        errors: err.details
+      };
+    } else {
+      ctx.body = {
+        error: err.message
+      };
+    }
 
     // since we handled this manually we'll
     // want to delegate to the regular app
@@ -32,7 +46,6 @@ app.use(async (ctx, next) => {
 // error handler
 app.on('error', err => {
   if (process.env.NODE_ENV !== 'test') {
-    console.log('sent error %s to the cloud', err.message);
     console.log(err);
   }
 });

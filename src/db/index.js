@@ -5,7 +5,7 @@ const { Pool } = require('pg');
 const pool = new Pool();
 
 const { NODE_ENV } = process.env;
-const DEV = NODE_ENV === 'development';
+const DEV = NODE_ENV !== 'production';
 
 module.exports = {
   query: async query => {

@@ -1,19 +1,40 @@
 const request = require('supertest');
 const app = require('../src/server');
+const db = require('../src/db');
 
 const longText =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
 let user;
+let newUser;
 
 beforeEach(() => {
   user = {
     email: 'magtataho@gmail.com',
     password: 'magtataho'
   };
+  newUser = {
+    name: 'test user 3',
+    email: 'test3@example.com',
+    password: 'testuser3',
+    password_confirmation: 'testuser3'
+  };
 });
 
-afterEach(() => {
-  app.close();
+afterEach(async () => {
+  try {
+    const deleteNewUser = {
+      text: 'DELETE FROM users WHERE email = $1',
+      values: [newUser.email]
+    };
+    await db.query(deleteNewUser);
+    console.log('newUser deleted.');
+  } catch (error) {
+    console.log(error);
+  } finally {
+    console.log('App closed!');
+
+    app.close();
+  }
 });
 
 describe('Auth Component Tests', () => {
@@ -36,7 +57,7 @@ describe('Auth Component Tests', () => {
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(422);
-      expect(response.body.error).toMatch('"email" is required');
+      expect(response.body.errors[0].message).toMatch('"email" is required');
     });
 
     test('should fail when email is invalid', async () => {
@@ -48,7 +69,7 @@ describe('Auth Component Tests', () => {
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(422);
-      expect(response.body.error).toMatch('"email" must be a valid email');
+      expect(response.body.errors[0].message).toMatch('"email" must be a valid email');
     });
 
     test('should fail when email is too long (> 150 chars)', async () => {
@@ -60,7 +81,7 @@ describe('Auth Component Tests', () => {
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(422);
-      expect(response.body.error).toMatch(
+      expect(response.body.errors[0].message).toMatch(
         '"email" length must be less than or equal to 150 characters long'
       );
     });
@@ -73,7 +94,7 @@ describe('Auth Component Tests', () => {
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(422);
-      expect(response.body.error).toMatch('"password" is required');
+      expect(response.body.errors[0].message).toMatch('"password" is required');
     });
 
     test('should fail when password is less than 8 characters', async () => {
@@ -85,7 +106,9 @@ describe('Auth Component Tests', () => {
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(422);
-      expect(response.body.error).toMatch('"password" length must be at least 8 characters long');
+      expect(response.body.errors[0].message).toMatch(
+        '"password" length must be at least 8 characters long'
+      );
     });
 
     test('should fail when password is more than 150 characters', async () => {
@@ -97,7 +120,102 @@ describe('Auth Component Tests', () => {
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(422);
-      expect(response.body.error).toMatch(
+      expect(response.body.errors[0].message).toMatch(
+        '"password" length must be less than or equal to 150 characters long'
+      );
+    });
+  });
+
+  describe('Register endpoint tests', () => {
+    test('should return a new user when valid creds are supplied', async () => {
+      const response = await request(app)
+        .post('/auth/register')
+        .send(newUser)
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toMatchObject({
+        name: newUser.name,
+        email: newUser.email
+      });
+    });
+    test('should fail when name is blank', async () => {
+      delete newUser.name;
+      const response = await request(app)
+        .post('/auth/register')
+        .send(newUser)
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch('"name" is required');
+    });
+    test('should fail when email is blank', async () => {
+      delete newUser.email;
+      const response = await request(app)
+        .post('/auth/register')
+        .send(newUser)
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch('"email" is required');
+    });
+    test('should fail when password is blank', async () => {
+      delete newUser.password;
+      const response = await request(app)
+        .post('/auth/register')
+        .send(newUser)
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch('"password" is required');
+    });
+    test('should fail when passwordConfirmation is blank', async () => {
+      delete newUser.password_confirmation;
+      const response = await request(app)
+        .post('/auth/register')
+        .send(newUser)
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch('"password_confirmation" is required');
+    });
+    test('should fail when password is different from password_confirmation', async () => {
+      newUser.password = 'different';
+      const response = await request(app)
+        .post('/auth/register')
+        .send(newUser)
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch('Passwords do not match');
+    });
+    test('should fail when password is less than 8 characters', async () => {
+      newUser.password = '1234567';
+      const response = await request(app)
+        .post('/auth/register')
+        .send(newUser)
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch(
+        '"password" length must be at least 8 characters long'
+      );
+    });
+
+    test('should fail when password is more than 150 characters', async () => {
+      newUser.password = longText;
+      const response = await request(app)
+        .post('/auth/register')
+        .send(newUser)
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch(
         '"password" length must be less than or equal to 150 characters long'
       );
     });
@@ -111,9 +229,8 @@ describe('Users Component Tests', () => {
         .get('/users/7')
         .expect('Content-Type', 'application/json; charset=utf-8');
 
-      console.log(response.body);
       expect(response.status).toEqual(200);
-      expect(response.body.data).toMatchObject({
+      expect(response.body).toMatchObject({
         id: 7,
         name: 'abc',
         email: 'abc@123.com',
@@ -127,7 +244,7 @@ describe('Users Component Tests', () => {
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(422);
-      expect(response.body.error).toMatch('"user" must be a number');
+      expect(response.body.errors[0].message).toMatch('"user" must be a number');
     });
   });
 });
