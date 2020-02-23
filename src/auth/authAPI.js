@@ -1,9 +1,9 @@
 const router = require('koa-router')();
 const body = require('../bodyparser');
-const API = require('./authController');
+const authController = require('./authController');
 
 router.prefix('/auth');
-router.post('/login', body(), API.login);
-router.post('/register', body(), API.register);
+router.post('/login', body(), authController.login);
+router.post('/register', body(), authController.register);
 
 module.exports = router;
