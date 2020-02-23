@@ -6,7 +6,7 @@ const port = PORT || 3000;
 const host = HOST || 'localhost';
 
 const server = http.createServer(app.callback()).listen(port, host, err => {
-  if (err) console.error(err);
+  if (err) return console.error(err);
   console.log(`Listening on ${PROTO}://${host}:${port}`);
 });
 
