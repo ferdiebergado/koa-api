@@ -1,11 +1,14 @@
 const router = require('koa-router')();
 const body = require('../bodyparser');
-const { loginSchema, registerSchema } = require('./authSchemas');
+const { loginSchema, registerSchema, tokenSchema, passwordResetSchema } = require('./authSchemas');
 const { validate } = require('../middlewares/validationMiddleware');
-const authController = require('./authController');
+const { login, register, verify, recoverPassword, resetPassword } = require('./authController');
 
 router.prefix('/auth');
-router.post('/login', body(), validate(loginSchema), authController.login);
-router.post('/register', body(), validate(registerSchema), authController.register);
+router.post('/login', body(), validate(loginSchema), login);
+router.post('/register', body(), validate(registerSchema), register);
+router.get('/verify/:token', validate(tokenSchema, 'token'), verify);
+router.post('/password/reset/:token', body(), resetPassword);
+router.post('/password/recover', body(), validate(passwordResetSchema), recoverPassword);
 
 module.exports = router;

@@ -1,0 +1,9 @@
+{% extends "email.njk" %}
+{% block message %}
+    <p>Hi {{ data.username }},</p>
+    <p>You have successfully verified your account.</p>
+    <p>To login to your account, please click the button below:</p>
+{% endblock %}
+{% block action %}
+    Login
+{% endblock %}

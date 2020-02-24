@@ -1,5 +1,7 @@
 const Joi = require('@hapi/joi');
 
+const invalidToken = 'Invalid token';
+
 const schema = {
   name: Joi.string().required(),
   email: Joi.string()
@@ -15,10 +17,20 @@ const schema = {
     .required()
     .messages({
       'any.only': 'Passwords do not match'
+    }),
+  token: Joi.string()
+    .hex()
+    .min(128)
+    .max(155)
+    .messages({
+      'string.hex': invalidToken,
+      'string.min': invalidToken,
+      'string.max': invalidToken
     })
 };
 
-const { name, email, password, password_confirmation } = schema;
+// eslint-disable-next-line camelcase
+const { name, email, password, password_confirmation, token } = schema;
 
 module.exports = {
   loginSchema: Joi.object({
@@ -30,5 +42,8 @@ module.exports = {
     email,
     password,
     password_confirmation
-  })
+  }),
+  tokenSchema: Joi.object({ token }),
+  passwordResetSchema: Joi.object({ email }),
+  resetPasswordSchema: Joi.object({ password, password_confirmation })
 };

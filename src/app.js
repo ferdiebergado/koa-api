@@ -2,8 +2,8 @@ const Koa = require('koa');
 const router = require('koa-router')();
 const logger = require('koa-logger');
 const { ValidationError } = require('@hapi/joi');
-const authRoute = require('./auth/authAPI');
-const userRoute = require('./users/usersAPI');
+const authRouter = require('./auth');
+const userRouter = require('./users');
 
 const app = new Koa();
 const { NODE_ENV, APP_KEY } = process.env;
@@ -20,7 +20,7 @@ app.use(async (ctx, next) => {
     ctx.status = err.statusCode || err.status || 500;
     if (err instanceof ValidationError) {
       ctx.status = 422;
-      if (DEV) {
+      if (!DEV) {
         err.details.forEach(e => {
           delete e.type;
           delete e.context;
@@ -63,9 +63,9 @@ router.get('/error', (_ctx, _next) => {
 
 app.use(router.routes());
 app.use(router.allowedMethods());
-app.use(authRoute.routes());
-app.use(authRoute.allowedMethods());
-app.use(userRoute.routes());
-app.use(userRoute.allowedMethods());
+app.use(authRouter.routes());
+app.use(authRouter.allowedMethods());
+app.use(userRouter.routes());
+app.use(userRouter.allowedMethods());
 
 module.exports = app;

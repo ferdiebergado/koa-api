@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-catch */
 const authService = require('./authService');
+const { resetPasswordSchema, tokenSchema } = require('./authSchemas');
 
 module.exports = {
   login: async (ctx, _next) => {
@@ -36,6 +37,37 @@ module.exports = {
       ctx.body = user;
     } catch (error) {
       // Bubble up the error to the global error handler
+      throw error;
+    }
+  },
+  verify: async (ctx, _next) => {
+    try {
+      const message = await authService.verify(ctx.params.token);
+      ctx.status = 200;
+      ctx.body = { message };
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  recoverPassword: async (ctx, _next) => {
+    try {
+      const message = await authService.recoverPassword(ctx.request.body.email);
+      ctx.status = 200;
+      ctx.body = message;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  resetPassword: async (ctx, _next) => {
+    try {
+      await tokenSchema.validateAsync({ token: ctx.params.token });
+      await resetPasswordSchema.validateAsync(ctx.request.body, { abortEarly: false });
+      const message = await authService.resetPassword(ctx.request.body.password, ctx.params.token);
+      ctx.status = 200;
+      ctx.body = { message };
+    } catch (error) {
       throw error;
     }
   }

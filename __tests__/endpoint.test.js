@@ -219,6 +219,39 @@ describe('Auth Component Tests', () => {
         '"password" length must be less than or equal to 150 characters long'
       );
     });
+
+    test('account verification should succeed when token is valid', async () => {
+      const register = await request(app)
+        .post('/auth/register')
+        .send(newUser);
+
+      const response = await request(app)
+        .get(`/auth/verify/${register.body.verification_token}`)
+        .expect('Content-Type', 'application/json; charset=utf-8');
+      expect(response.status).toEqual(200);
+      expect(response.body.message).toMatch('Account successfully activated.');
+    });
+    test('account verification should fail when token is invalid', async () => {
+      await request(app)
+        .post('/auth/register')
+        .send(newUser);
+
+      const response = await request(app)
+        .get('/auth/verify/invalidtoken')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch('Invalid token');
+    });
+    test('password reset should send a token when email is valid', async () => {
+      const response = await request(app)
+        .post('/auth/password/recover')
+        .send({ email: user.email })
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+      expect(response.status).toEqual(200);
+      expect(response.body.message).toMatch('A password reset link was sent to your email.');
+      expect(response.body.token).not.toBeUndefined();
+    });
   });
 });
 

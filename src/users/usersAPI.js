@@ -4,6 +4,6 @@ const { showSchema } = require('./usersSchema');
 const { validate } = require('../middlewares/validationMiddleware');
 
 router.prefix('/users');
-router.get('/:user', validate(showSchema), usersController.show);
+router.get('/:user', validate(showSchema, 'user'), usersController.show);
 
 module.exports = router;
