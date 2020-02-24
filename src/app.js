@@ -18,6 +18,7 @@ app.use(async (ctx, next) => {
   } catch (err) {
     // will only respond with JSON
     ctx.status = err.statusCode || err.status || 500;
+
     if (err instanceof ValidationError) {
       ctx.status = 422;
       if (!DEV) {
@@ -29,11 +30,14 @@ app.use(async (ctx, next) => {
       ctx.body = {
         errors: err.details
       };
-    } else {
-      ctx.body = {
-        error: err.message
-      };
+      return;
     }
+    if (err.message === 'User not found') {
+      ctx.status = 404;
+    }
+    ctx.body = {
+      error: err.message
+    };
 
     // since we handled this manually we'll
     // want to delegate to the regular app
