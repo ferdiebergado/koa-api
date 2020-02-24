@@ -152,7 +152,7 @@ module.exports = {
   },
 
   resetPassword: async (password, token) => {
-    const client = db.getClient2();
+    const client = await db.getClient2();
     try {
       const findUserByToken = {
         text: 'SELECT id FROM users WHERE password_reset_token = $1',
