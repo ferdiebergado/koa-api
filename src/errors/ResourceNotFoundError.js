@@ -1,4 +1,4 @@
-class ResourceNotFound extends Error {
+class ResourceNotFoundError extends Error {
   constructor() {
     const message = 'Resource not found';
     // Pass remaining arguments (including vendor specific ones) to parent constructor
@@ -6,11 +6,11 @@ class ResourceNotFound extends Error {
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, ResourceNotFound);
+      Error.captureStackTrace(this, ResourceNotFoundError);
     }
-    this.name = 'ResourceNotFound';
+    this.name = 'ResourceNotFoundError';
     this.statusCode = 404;
   }
 }
 
-module.exports = ResourceNotFound;
+module.exports = ResourceNotFoundError;
