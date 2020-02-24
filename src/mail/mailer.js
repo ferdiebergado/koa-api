@@ -28,7 +28,18 @@ module.exports = {
     });
 
     const accessToken = oauth2Client.getAccessToken();
-    const smtpTransport = nodemailer.createTransport({
+    const localTransport = {
+      pool: true,
+      host: '127.0.0.1',
+      port: 1025,
+      secure: false, // upgrade later with STARTTLS
+      auth: {
+        user: null,
+        pass: null
+      }
+    };
+
+    const gmailTransport = {
       service: 'gmail',
       auth: {
         type: 'OAuth2',
@@ -38,7 +49,11 @@ module.exports = {
         refreshToken,
         accessToken
       }
-    });
+    };
+
+    let transport = gmailTransport;
+    if (NODE_ENV === 'test') transport = localTransport;
+    const smtpTransport = nodemailer.createTransport(transport);
     const env = nunjucks.configure('src/mail/templates', { autoescape: true });
     const html = env.render(template, { data });
     const mailOptions = {
