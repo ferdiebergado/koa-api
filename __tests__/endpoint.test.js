@@ -289,7 +289,7 @@ describe('Auth Component Tests', () => {
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(404);
-      expect(response.body.error).toMatch('User not found');
+      expect(response.body.error).toMatch('Resource not found');
       expect(response.body.token).toBeUndefined();
     });
     test('password reset should update the password when token is valid', async () => {
@@ -352,7 +352,7 @@ describe('Users Component Tests', () => {
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(404);
-      expect(response.body.error).toMatch('User not found');
+      expect(response.body.error).toMatch('Resource not found');
     });
   });
 });

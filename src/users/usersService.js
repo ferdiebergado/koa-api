@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-catch */
 const db = require('../db');
+const ResourceNotFoundError = require('../errors/ResourceNotFoundError');
 
 module.exports = {
   find: async id => {
@@ -11,10 +12,9 @@ module.exports = {
         values: [id]
       };
       const users = await db.query(findUserById);
-      const notFound = 'User not found';
 
       // User does not exist, throw custom error
-      if (users.rowCount === 0) throw new Error(notFound);
+      if (users.rowCount === 0) throw new ResourceNotFoundError();
 
       // User found, return the user
       return users.rows[0];
@@ -37,7 +37,7 @@ module.exports = {
       const notFound = 'User not found';
 
       // User does not exist, throw custom error
-      if (users.rowCount === 0) throw new Error(notFound);
+      if (users.rowCount === 0) throw new ResourceNotFoundError();
 
       // User found, return the user
       return users.rows[0];

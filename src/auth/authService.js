@@ -4,10 +4,10 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const db = require('../db');
 const mailer = require('../mail');
+const ResourceNotFoundError = require('../errors/ResourceNotFoundError');
 
 const { PROTO, HOST, PORT, APP_KEY } = process.env;
 const authUrl = `${PROTO}://${HOST}:${PORT}/auth`;
-const notFound = 'User not found';
 
 /**
  * Logs in the user.
@@ -29,14 +29,14 @@ async function login(email, password) {
     const users = await db.query(findUserByEmail);
 
     // User does not exist, throw custom error
-    if (users.rowCount === 0) throw new Error(notFound);
+    if (users.rowCount === 0) throw new ResourceNotFoundError();
 
     // User exists, check if supplied password match the hashed password in the database
     const user = users.rows[0];
     const match = await bcrypt.compare(password, user.password);
 
     // Passwords did not match, throw custom error
-    if (!match) throw new Error(notFound);
+    if (!match) throw new ResourceNotFoundError();
 
     // Passwords match, create a jwt
     delete user.password;
@@ -128,7 +128,7 @@ async function verify(token) {
     const res = await client.query(findUserByVerificationToken);
 
     // User does not exist, throw an error
-    if (res.rowCount === 0) throw new Error(notFound);
+    if (res.rowCount === 0) throw new ResourceNotFoundError();
 
     // User exists, activate the user
     const user = res.rows[0];
@@ -173,7 +173,7 @@ async function recoverPassword(email) {
     const users = await client.query(findUserByEmail);
 
     // User not found, throw an error
-    if (users.rowCount === 0) throw new Error(notFound);
+    if (users.rowCount === 0) throw new ResourceNotFoundError();
 
     // User exists, assign the password reset token to the user
     const updatePasswordResetToken = {
@@ -224,7 +224,7 @@ async function resetPassword(password, token) {
     const users = await client.query(findUserByToken);
 
     // User not found, throw an error
-    if (users.rowCount === 0) throw new Error(notFound);
+    if (users.rowCount === 0) throw new ResourceNotFoundError();
 
     // User exists, hash the password
     const hash = await bcrypt.hash(password, 10);
