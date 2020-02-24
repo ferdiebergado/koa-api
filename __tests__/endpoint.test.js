@@ -324,9 +324,30 @@ describe('Auth Component Tests', () => {
 
 describe('Users Component Tests', () => {
   describe('Show User Endpoint Tests', () => {
-    test('should return a user when param is valid', async () => {
+    test('should fail when user is not logged in', async () => {
       const response = await request(app)
         .get('/users/7')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(response.status).toEqual(401);
+      expect(response.body.error).toMatch('Unauthorized');
+    });
+    test('should return a user when param is valid', async () => {
+      const loginResponse = await request(app)
+        .post('/auth/login')
+        .send(user)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      const token = loginResponse.body.access_token;
+      const cookie = loginResponse.headers['set-cookie'];
+
+      const response = await request(app)
+        .get('/users/7')
+        .set('X-Requested-With', 'XMLHttpRequest')
+        .set('Authorization', token)
+        .set('Cookie', [cookie])
+        .set('Accept', 'application/json')
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(200);
@@ -347,8 +368,21 @@ describe('Users Component Tests', () => {
       expect(response.body.errors[0].message).toMatch('"user" must be a number');
     });
     test('should fail when id does not exist', async () => {
+      const loginResponse = await request(app)
+        .post('/auth/login')
+        .send(user)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      const token = loginResponse.body.access_token;
+      const cookie = loginResponse.headers['set-cookie'];
+
       const response = await request(app)
         .get('/users/0')
+        .set('X-Requested-With', 'XMLHttpRequest')
+        .set('Authorization', token)
+        .set('Cookie', [cookie])
+        .set('Accept', 'application/json')
         .expect('Content-Type', 'application/json; charset=utf-8');
 
       expect(response.status).toEqual(404);

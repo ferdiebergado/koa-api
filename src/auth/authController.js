@@ -11,7 +11,7 @@ module.exports = {
 
       // Account exists, set the jwt cookie
       ctx.cookies.set('fsbapp.session.id', signature, {
-        signed: true,
+        // signed: true,
         secure: process.env.SSL === 'true'
       });
 
