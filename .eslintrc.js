@@ -1,6 +1,7 @@
 module.exports = {
   extends: [
-    'airbnb-base',
+    // 'airbnb-base',
+    'eslint:recommended',
     'prettier',
     'plugin:security/recommended',
     'plugin:jest/recommended',
@@ -11,7 +12,8 @@ module.exports = {
     ecmaVersion: 2020
   },
   env: {
-    node: true
+    node: true,
+    jest: true
   },
   plugins: ['import', 'prettier', 'security', 'jest'],
   rules: {
