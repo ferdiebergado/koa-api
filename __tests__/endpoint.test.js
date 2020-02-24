@@ -10,7 +10,7 @@ let newUser;
 beforeEach(() => {
   user = {
     email: 'magtataho@gmail.com',
-    password: 'magtataho'
+    password: '12345678'
   };
   newUser = {
     name: 'test user 3',
@@ -242,7 +242,7 @@ describe('Auth Component Tests', () => {
       expect(response.status).toEqual(422);
       expect(response.body.errors[0].message).toMatch('Invalid token');
     });
-    test('password reset should send a token when email is valid', async () => {
+    test('password recovery should send a token when email is valid', async () => {
       const response = await request(app)
         .post('/auth/password/recover')
         .send({ email: user.email })
@@ -251,6 +251,73 @@ describe('Auth Component Tests', () => {
       expect(response.status).toEqual(200);
       expect(response.body.message).toMatch('A password reset link was sent to your email.');
       expect(response.body.token).not.toBeUndefined();
+    });
+    test('password recovery fails when email is undefined', async () => {
+      const response = await request(app)
+        .post('/auth/password/recover')
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch('"email" is required');
+      expect(response.body.token).toBeUndefined();
+    });
+    test('password recovery fails when email is empty', async () => {
+      const response = await request(app)
+        .post('/auth/password/recover')
+        .send({ email: '' })
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch('"email" is not allowed to be empty');
+      expect(response.body.token).toBeUndefined();
+    });
+    test('password recovery fails when email is invalid', async () => {
+      const response = await request(app)
+        .post('/auth/password/recover')
+        .send({ email: 'invalid@email' })
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+      expect(response.status).toEqual(422);
+      expect(response.body.errors[0].message).toMatch('"email" must be a valid email');
+      expect(response.body.token).toBeUndefined();
+    });
+    test('password recovery fails when email does not exist', async () => {
+      const response = await request(app)
+        .post('/auth/password/recover')
+        .send({ email: 'invalid@email.com' })
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(response.status).toEqual(404);
+      expect(response.body.error).toMatch('User not found');
+      expect(response.body.token).toBeUndefined();
+    });
+    test('password reset should update the password when token is valid', async () => {
+      const newCreds = { password: '12345678', password_confirmation: '12345678' };
+      const recover = await request(app)
+        .post('/auth/password/recover')
+        .send({ email: user.email });
+
+      const response = await request(app)
+        .post(`/auth/password/reset/${recover.body.token}`)
+        .send(newCreds)
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(response.status).toEqual(200);
+      expect(response.body.message).toMatch('Password was reset.');
+      const updatedUser = {
+        email: user.email,
+        password: newCreds.password
+      };
+
+      const login = await request(app)
+        .post('/auth/login')
+        .send(updatedUser)
+        .set('Content-Type', 'application/json')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(login.body.access_token).not.toBeUndefined();
     });
   });
 });
@@ -278,6 +345,14 @@ describe('Users Component Tests', () => {
 
       expect(response.status).toEqual(422);
       expect(response.body.errors[0].message).toMatch('"user" must be a number');
+    });
+    test('should fail when id does not exist', async () => {
+      const response = await request(app)
+        .get('/users/0')
+        .expect('Content-Type', 'application/json; charset=utf-8');
+
+      expect(response.status).toEqual(404);
+      expect(response.body.error).toMatch('User not found');
     });
   });
 });
