@@ -8,8 +8,8 @@ const { NODE_ENV } = process.env;
 const DEV = NODE_ENV !== 'production';
 
 /**
- * Execute a query on the database pool
- * @param {Object} sql The object containing the query string and values
+ * Execute a query on the database pool.
+ * @param {Object} sql - The object containing the query string and values.
  */
 async function query(sql) {
   try {
@@ -39,7 +39,7 @@ async function query(sql) {
 }
 
 /**
- * Get the client from the pool
+ * Get the client from the pool.
  * @returns {Promise}
  */
 async function getClient2() {
@@ -47,8 +47,8 @@ async function getClient2() {
 }
 
 /**
- * Get the client from the pool
- * @param {Function} callback
+ * Get the client from the pool.
+ * @param {Function} callback - The function to run with the client.
  */
 function getClient(callback) {
   pool.connect((err, client, done) => {
