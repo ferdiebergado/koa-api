@@ -75,6 +75,7 @@ async function verify(ctx, _next) {
     ctx.status = 200;
     ctx.body = { message };
   } catch (error) {
+    // Bubble up the error to the global error handler
     throw error;
   }
 }
@@ -94,6 +95,7 @@ async function recoverPassword(ctx, _next) {
     ctx.status = 200;
     ctx.body = message;
   } catch (error) {
+    // Bubble up the error to the global error handler
     throw error;
   }
 }
@@ -109,12 +111,23 @@ async function recoverPassword(ctx, _next) {
  */
 async function resetPassword(ctx, _next) {
   try {
-    await tokenSchema.validateAsync({ token: ctx.params.token });
-    await resetPasswordSchema.validateAsync(ctx.request.body, { abortEarly: false });
-    const message = await authService.resetPassword(ctx.request.body.password, ctx.params.token);
+    // Validate the token
+    const { token } = ctx.params;
+    await tokenSchema.validateAsync({ token });
+
+    // Validate the passwords
+    const { body } = ctx.request;
+    await resetPasswordSchema.validateAsync(body, { abortEarly: false });
+
+    // Reset the password
+    const { password } = body;
+    const message = await authService.resetPassword(password, token);
+
+    // Respond with the success message
     ctx.status = 200;
     ctx.body = { message };
   } catch (error) {
+    // Bubble up the error to the global error handler
     throw error;
   }
 }
