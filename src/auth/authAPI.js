@@ -1,4 +1,4 @@
-const router = require('koa-router')();
+const router = require('@koa/router')();
 const body = require('../bodyparser');
 const { loginSchema, registerSchema, tokenSchema, passwordResetSchema } = require('./authSchemas');
 const { validate } = require('../middlewares/validationMiddleware');

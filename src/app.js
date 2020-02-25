@@ -1,5 +1,5 @@
 const Koa = require('koa');
-const router = require('koa-router')();
+const router = require('@koa/router')();
 const logger = require('koa-logger');
 const { ValidationError } = require('@hapi/joi');
 const authRouter = require('./auth');
