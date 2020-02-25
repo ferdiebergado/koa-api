@@ -96,7 +96,7 @@ A REST API template using Koa js. **Work-In-Progress**
    yarn start
    ```
 
-3) Use a REST client to play with the api on http://localhost:3000.
+3) Use a REST client to play with the api at http://localhost:3000.
 
    ```bash
    curl http://localhost:3000
@@ -106,7 +106,9 @@ A REST API template using Koa js. **Work-In-Progress**
 
 ## TEST
 
-Run the tests. (Set the environment variables from the USAGE section.)
+Run the tests.
+
+(Don't forget to set the environment variables from the USAGE section.)
 
 ```bash
 yarn test
@@ -120,9 +122,13 @@ Documentation can be found in the [docs](./docs) folder.
 
 ## AUTHOR
 
-Ferdinand Saporas Bergado
+**_Ferdinand Saporas Bergado_**
 
 Email: ferdiebergado@gmail.com
+
+Twitter: https://twitter.com/ferdiebergado
+
+Facebook: https://facebook.com/ferdie.bergado
 
 ## LICENSE
 
