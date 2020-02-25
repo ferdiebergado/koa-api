@@ -1,4 +1,9 @@
+/**
+ * @module authService
+ */
+
 /* eslint-disable no-useless-catch */
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -11,7 +16,7 @@ const authUrl = `${PROTO}://${HOST}:${PORT}/auth`;
 
 /**
  * Logs in the user.
- * @function
+ * @static
  * @async
  * @param {string} email - The user email address.
  * @param {string} password - The user password.
@@ -28,14 +33,14 @@ async function login(email, password) {
     };
     const users = await db.query(findUserByEmail);
 
-    // User does not exist, throw custom error
+    // User does not exist, throw an error
     if (users.rowCount === 0) throw new ResourceNotFoundError();
 
     // User exists, check if supplied password match the hashed password in the database
     const user = users.rows[0];
     const match = await bcrypt.compare(password, user.password);
 
-    // Passwords did not match, throw custom error
+    // Passwords did not match, throw an error
     if (!match) throw new ResourceNotFoundError();
 
     // Passwords match, create a jwt
@@ -58,7 +63,7 @@ async function login(email, password) {
 
 /**
  * Registers a user.
- * @function
+ * @static
  * @async
  * @param {Object} data - The new user.
  * @param {string} data.name - The name of the user.
@@ -111,14 +116,14 @@ async function register(data) {
 
 /**
  * Verifies a newly created user account using a token.
- * @function
+ * @static
  * @async
  * @param {string} token - The verification token.
  * @throws {Error}
  * @returns {Promise} Promise object contains the string message.
  */
 async function verify(token) {
-  const client = await db.getClient2();
+  const client = await db.getClient();
   try {
     // Check if a user with the supplied token exists in the database
     const findUserByVerificationToken = {
@@ -153,14 +158,14 @@ async function verify(token) {
 
 /**
  * Send a password recovery link to the specified email.
- * @function
+ * @static
  * @async
  * @param {string} email - The email address of the user.
  * @throws {Error}
  * @returns {Promise} Promise object represents the string message and password recovery token
  */
 async function recoverPassword(email) {
-  const client = await db.getClient2();
+  const client = await db.getClient();
   try {
     // Generate a password recovery token
     const token = crypto.randomBytes(64).toString('hex');
@@ -205,7 +210,7 @@ async function recoverPassword(email) {
 
 /**
  * Resets the user password.
- * @function
+ * @static
  * @async
  * @param {string} password - The new password.
  * @param {string} token - The password recovery token.
@@ -213,7 +218,7 @@ async function recoverPassword(email) {
  * @returns {Promise} Promise object represents the string message.
  */
 async function resetPassword(password, token) {
-  const client = await db.getClient2();
+  const client = await db.getClient();
   try {
     // Check if a user with the supplied token exists in the database
     const findUserByToken = {

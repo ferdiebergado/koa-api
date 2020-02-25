@@ -1,3 +1,7 @@
+/**
+ * The http server
+ * @module server
+ */
 const http = require('http');
 const app = require('./app');
 

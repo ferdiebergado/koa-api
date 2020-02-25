@@ -1,3 +1,8 @@
+/**
+ * The main application
+ * @module app
+ */
+
 const Koa = require('koa');
 const router = require('@koa/router')();
 const logger = require('koa-logger');
@@ -5,9 +10,13 @@ const { ValidationError } = require('@hapi/joi');
 const authRouter = require('./auth');
 const userRouter = require('./users');
 
+/**
+ * @constant {Object}
+ * @description The application object
+ */
 const app = new Koa();
-const { NODE_ENV, APP_KEY } = process.env;
 
+const { NODE_ENV, APP_KEY } = process.env;
 const DEV = NODE_ENV !== 'production';
 
 app.keys = [APP_KEY];
@@ -72,4 +81,5 @@ app.use(authRouter.allowedMethods());
 app.use(userRouter.routes());
 app.use(userRouter.allowedMethods());
 
+// Expose the application
 module.exports = app;

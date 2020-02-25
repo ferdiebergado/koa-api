@@ -1,8 +1,12 @@
+/**
+ * The request body parser
+ * @module bodyparser
+ */
 const Body = require('koa-body');
 
-module.exports = () => {
-  return new Body({
-    urlencoded: false,
-    text: false
-  });
-};
+const body = Body({
+  urlencoded: false,
+  text: false
+});
+
+module.exports = body;

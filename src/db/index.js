@@ -1,5 +1,9 @@
+/**
+ * @module db
+ */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-useless-catch */
+
 const { Pool } = require('pg');
 
 const pool = new Pool();
@@ -9,7 +13,13 @@ const DEV = NODE_ENV !== 'production';
 
 /**
  * Execute a query on the database pool.
+ * @static
+ * @async
  * @param {Object} sql - The object containing the query string and values.
+ * @param {string} sql.text - The query string.
+ * @param {array} sql.values - The query parameter(s)
+ * @throws {Error}
+ * @returns {Promise} The query result
  */
 async function query(sql) {
   try {
@@ -39,45 +49,24 @@ async function query(sql) {
 }
 
 /**
- * Get the client from the pool.
- * @returns {Promise}
+ * Get the client from the connection pool.
+ * @static
+ * @async
+ * @throws {Error}
+ * @returns {Promise} The client
  */
-async function getClient2() {
-  return pool.connect();
+async function getClient() {
+  try {
+    const client = await pool.connect();
+    return client;
+  } catch (error) {
+    // Bubble up the error to the global error handler
+    throw error;
+  }
 }
 
-/**
- * Get the client from the pool.
- * @param {Function} callback - The function to run with the client.
- */
-function getClient(callback) {
-  pool.connect((err, client, done) => {
-    // eslint-disable-next-line no-shadow
-    const { query } = client;
-    // monkey patch the query method to keep track of the last query executed
-    client.query = (...args) => {
-      client.lastQuery = args;
-      return query.apply(client, args);
-    };
-    // set a timeout of 5 seconds, after which we will log this client's last query
-    const timeout = setTimeout(() => {
-      console.error('A client has been checked out for more than 5 seconds!');
-      console.error(`The last executed query on this client was: ${client.lastQuery}`);
-    }, 5000);
-    const release = error => {
-      // call the actual 'done' method, returning this client to the pool
-      done(error);
-      // clear our timeout
-      clearTimeout(timeout);
-      // set the query method back to its old un-monkey-patched version
-      client.query = query;
-    };
-    callback(err, client, release);
-  });
-}
-
+// Expose the functions
 module.exports = {
   query,
-  getClient,
-  getClient2
+  getClient
 };

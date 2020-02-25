@@ -1,11 +1,19 @@
+/**
+ * @module authController
+ */
 /* eslint-disable no-useless-catch */
+
 const authService = require('./authService');
 const { resetPasswordSchema, tokenSchema } = require('./authSchemas');
 
 /**
  * Handle a login request
- * @param {Object} ctx - The Koa context
- * @param {Function} _next - The downstream route handler
+ * @static
+ * @async
+ * @param {Object} ctx - The application context
+ * @param {Function} _next - The downstream request handler
+ * @throws {Error}
+ * @returns {Promise} The http response object
  */
 async function login(ctx, _next) {
   try {
@@ -32,8 +40,12 @@ async function login(ctx, _next) {
 
 /**
  * Handle a registration request
- * @param {Object} ctx - The Koa context
- * @param {Function} _next - The downstream route handler
+ * @static
+ * @async
+ * @param {Object} ctx - The application context
+ * @param {Function} _next - The downstream request handler
+ * @throws {Error}
+ * @returns {Promise} The http response object
  */
 async function register(ctx, _next) {
   try {
@@ -53,8 +65,12 @@ async function register(ctx, _next) {
 
 /**
  * Handle a new user account verification request
- * @param {Object} ctx - The Koa context
- * @param {Function} _next - The downstream route handler
+ * @static
+ * @async
+ * @param {Object} ctx - The application context
+ * @param {Function} _next - The downstream request handler
+ * @throws {Error}
+ * @returns {Promise} The http response object
  */
 async function verify(ctx, _next) {
   try {
@@ -68,8 +84,12 @@ async function verify(ctx, _next) {
 
 /**
  * Handle a password recovery request
- * @param {Object} ctx - The Koa context
- * @param {Function} _next - The downstream route handler
+ * @static
+ * @async
+ * @param {Object} ctx - The application context
+ * @param {Function} _next - The downstream request handler
+ * @throws {Error}
+ * @returns {Promise} The http response object
  */
 async function recoverPassword(ctx, _next) {
   try {
@@ -83,8 +103,12 @@ async function recoverPassword(ctx, _next) {
 
 /**
  * Handle a password reset request
- * @param {Object} ctx - The Koa context
- * @param {Function} _next - The downstream route handler
+ * @static
+ * @async
+ * @param {Object} ctx - The application context
+ * @param {Function} _next - The downstream request handler
+ * @throws {Error}
+ * @returns {Promise} The http response object
  */
 async function resetPassword(ctx, _next) {
   try {
@@ -98,4 +122,5 @@ async function resetPassword(ctx, _next) {
   }
 }
 
+// Expose the functions
 module.exports = { login, register, verify, recoverPassword, resetPassword };
