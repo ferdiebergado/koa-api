@@ -22,10 +22,7 @@ async function login(ctx, _next) {
     const { payload, signature } = await authService.login(email, password);
 
     // Account exists, set the jwt cookie
-    ctx.cookies.set('fsbapp.session.id', signature, {
-      // signed: true,
-      secure: process.env.SSL === 'true'
-    });
+    ctx.cookies.set('fsbapp.session.id', signature);
 
     // Set status to OK
     ctx.status = 200;
