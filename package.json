@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@hapi/joi": "17.1.0",
+    "@hapi/joi": "17.1.1",
     "@koa/router": "8.0.8",
     "bcrypt": "3.0.8",
     "googleapis": "47.0.0",
